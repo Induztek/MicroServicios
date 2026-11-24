@@ -1,0 +1,143 @@
+# Induztek Ingenieria - backend completo
+# Levantar todo:   docker compose up --build
+# Primero copia .env.example como .env
+#
+#   Gateway (entrada de la app)  http://localhost:8090
+#   Eureka (panel)               http://localhost:8761
+
+name: induztek
+
+x-ms-comun: &ms-comun
+  restart: unless-stopped
+  networks: [induztek]
+
+services:
+
+  # ============ Eureka ============
+  eureka-server:
+    build: ./eureka-main
+    container_name: induztek-eureka-server
+    restart: unless-stopped
+    ports: ["8761:8761"]
+    networks: [induztek]
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:8761/actuator/health | grep -q UP"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+
+  # ============ API Gateway ============
+  api-gateway:
+    build: ./api-gateway-main
+    container_name: induztek-api-gateway
+    restart: unless-stopped
+    ports: ["8090:8090"]
+    networks: [induztek]
+    environment:
+      EUREKA_URL: http://eureka-server:8761/eureka/
+    depends_on:
+      eureka-server: {condition: service_healthy}
+
+  # ============ MySQL (un servidor, una base por microservicio) ============
+  mysql:
+    image: mysql:8.4
+    container_name: induztek-mysql
+    restart: unless-stopped
+    networks: [induztek]
+    ports: ["127.0.0.1:3307:3306"]
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Define MYSQL_ROOT_PASSWORD en el archivo .env}
+    volumes:
+      - datos-mysql:/var/lib/mysql
+      - ./mysql-init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+
+  # ============ empresas ============
+  empresas:
+    build: ./empresas-main
+    container_name: induztek-empresas
+    <<: *ms-comun
+    ports: ["8081:8081"]
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/induztek_empresas?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=America/Santiago
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      EUREKA_URL: http://eureka-server:8761/eureka/
+    depends_on:
+      mysql: {condition: service_healthy}
+      eureka-server: {condition: service_healthy}
+
+  # ============ usuarios ============
+  usuarios:
+    build: ./usuarios-main
+    container_name: induztek-usuarios
+    <<: *ms-comun
+    ports: ["8082:8082"]
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/induztek_usuarios?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=America/Santiago
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      EUREKA_URL: http://eureka-server:8761/eureka/
+      EMPRESAS_URL: http://empresas:8081
+    depends_on:
+      mysql: {condition: service_healthy}
+      eureka-server: {condition: service_healthy}
+
+  # ============ auth ============
+  auth:
+    build: ./auth-main
+    container_name: induztek-auth
+    <<: *ms-comun
+    ports: ["8083:8083"]
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/induztek_auth?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=America/Santiago
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      EUREKA_URL: http://eureka-server:8761/eureka/
+      USUARIOS_URL: http://usuarios:8082
+      JWT_SECRET: ${JWT_SECRET:?Define JWT_SECRET en el archivo .env}
+    depends_on:
+      mysql: {condition: service_healthy}
+      eureka-server: {condition: service_healthy}
+
+  # ============ equipos ============
+  equipos:
+    build: ./equipos
+    container_name: induztek-equipos
+    <<: *ms-comun
+    ports: ["8084:8084"]
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/induztek_equipos?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=America/Santiago
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      EUREKA_URL: http://eureka-server:8761/eureka/
+    depends_on:
+      mysql: {condition: service_healthy}
+      eureka-server: {condition: service_healthy}
+
+  # ============ protocolos ============
+  protocolos:
+    build: ./protocolos
+    container_name: induztek-protocolos
+    <<: *ms-comun
+    ports: ["8085:8085"]
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/induztek_protocolos?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=America/Santiago
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      EUREKA_URL: http://eureka-server:8761/eureka/
+    depends_on:
+      mysql: {condition: service_healthy}
+      eureka-server: {condition: service_healthy}
+
+networks:
+  induztek:
+
+volumes:
+  datos-mysql:

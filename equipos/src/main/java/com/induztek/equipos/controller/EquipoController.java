@@ -1,5 +1,6 @@
 package com.induztek.equipos.controller;
 
+import com.induztek.equipos.dto.AsignarTecnicoRequest;
 import com.induztek.equipos.dto.UbicacionRequest;
 import com.induztek.equipos.model.Equipo;
 import com.induztek.equipos.service.EquipoService;
@@ -41,6 +42,16 @@ public class EquipoController {
     @GetMapping("/cliente/{idCliente}")
     public ResponseEntity<List<Equipo>> listarPorCliente(@PathVariable Long idCliente) {
         return ResponseEntity.ok(service.listarPorCliente(idCliente));
+    }
+
+    @Operation(
+            summary = "Listar equipos por técnico",
+            description = "Retorna los equipos asignados a un técnico."
+    )
+    @ApiResponse(responseCode = "200", description = "Listado filtrado obtenido correctamente")
+    @GetMapping("/tecnico/{idTecnico}")
+    public ResponseEntity<List<Equipo>> listarPorTecnico(@PathVariable Long idTecnico) {
+        return ResponseEntity.ok(service.listarPorTecnico(idTecnico));
     }
 
     @Operation(
@@ -102,6 +113,21 @@ public class EquipoController {
     @PatchMapping("/{id}/ubicacion")
     public ResponseEntity<Equipo> actualizarUbicacion(@PathVariable Long id, @RequestBody UbicacionRequest req) {
         return service.actualizarUbicacion(id, req)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @Operation(
+            summary = "Asignar técnico a equipo",
+            description = "El supervisor asigna o quita (idTecnico = null) el técnico responsable del equipo."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Técnico asignado correctamente"),
+            @ApiResponse(responseCode = "404", description = "Equipo no encontrado")
+    })
+    @PatchMapping("/{id}/tecnico")
+    public ResponseEntity<Equipo> asignarTecnico(@PathVariable Long id, @RequestBody AsignarTecnicoRequest req) {
+        return service.asignarTecnico(id, req.getIdTecnico())
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }

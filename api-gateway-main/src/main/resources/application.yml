@@ -36,18 +36,71 @@ spring:
               predicates:
                 - Path=/api/protocolos,/api/protocolos/**
 
+            # Documentación OpenAPI de cada microservicio (Swagger unificado)
+            - id: docs-auth
+              uri: lb://AUTH
+              predicates:
+                - Path=/docs/auth/v3/api-docs
+              filters:
+                - RewritePath=/docs/auth/(?<segment>.*), /$\{segment}
+                - PreserveHostHeader
+
+            - id: docs-usuarios
+              uri: lb://USUARIOS
+              predicates:
+                - Path=/docs/usuarios/v3/api-docs
+              filters:
+                - RewritePath=/docs/usuarios/(?<segment>.*), /$\{segment}
+                - PreserveHostHeader
+
+            - id: docs-empresas
+              uri: lb://EMPRESAS
+              predicates:
+                - Path=/docs/empresas/v3/api-docs
+              filters:
+                - RewritePath=/docs/empresas/(?<segment>.*), /$\{segment}
+                - PreserveHostHeader
+
+            - id: docs-equipos
+              uri: lb://EQUIPOS
+              predicates:
+                - Path=/docs/equipos/v3/api-docs
+              filters:
+                - RewritePath=/docs/equipos/(?<segment>.*), /$\{segment}
+                - PreserveHostHeader
+
+            - id: docs-protocolos
+              uri: lb://PROTOCOLOS
+              predicates:
+                - Path=/docs/protocolos/v3/api-docs
+              filters:
+                - RewritePath=/docs/protocolos/(?<segment>.*), /$\{segment}
+                - PreserveHostHeader
+
 eureka:
   client:
     register-with-eureka: true
     fetch-registry: true
     service-url:
-      defaultZone: http://localhost:8761/eureka/
+      defaultZone: ${EUREKA_URL:http://localhost:8761/eureka/}
 
   instance:
-    prefer-ip-address: false
-    ip-address: 127.0.0.1
-    hostname: 127.0.0.1
-    instance-id: 127.0.0.1:${spring.application.name}:${server.port}
+    prefer-ip-address: true
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    urls:
+      - name: auth
+        url: /docs/auth/v3/api-docs
+      - name: usuarios
+        url: /docs/usuarios/v3/api-docs
+      - name: empresas
+        url: /docs/empresas/v3/api-docs
+      - name: equipos
+        url: /docs/equipos/v3/api-docs
+      - name: protocolos
+        url: /docs/protocolos/v3/api-docs
 
 logging:
   level:

@@ -23,6 +23,10 @@ public class EquipoService {
         return repository.findByIdCliente(idCliente);
     }
 
+    public List<Equipo> listarPorTecnico(Long idTecnico) {
+        return repository.findByIdTecnico(idTecnico);
+    }
+
     public Optional<Equipo> buscarPorId(Long id) {
         return repository.findById(id);
     }
@@ -43,6 +47,7 @@ public class EquipoService {
             existente.setLatitud(datos.getLatitud());
             existente.setLongitud(datos.getLongitud());
             existente.setIdCliente(datos.getIdCliente());
+            existente.setIdEmpresa(datos.getIdEmpresa());
             return repository.save(existente);
         });
     }
@@ -52,6 +57,13 @@ public class EquipoService {
             existente.setDireccion(req.getDireccion());
             existente.setLatitud(req.getLatitud());
             existente.setLongitud(req.getLongitud());
+            return repository.save(existente);
+        });
+    }
+
+    public Optional<Equipo> asignarTecnico(Long id, Long idTecnico) {
+        return repository.findById(id).map(existente -> {
+            existente.setIdTecnico(idTecnico);
             return repository.save(existente);
         });
     }

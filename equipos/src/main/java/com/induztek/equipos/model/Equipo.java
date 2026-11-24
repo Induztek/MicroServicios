@@ -32,4 +32,13 @@ public class Equipo {
 
     @NotNull(message = "El ID del cliente es obligatorio")
     private Long idCliente;
+
+    private Long idEmpresa;
+    private Long idTecnico;
+
+    // Equipo sin empresa ni técnico asignado
+    public Equipo(Long idEquipo, String codigo, String tipo, String instalacion, String direccion,
+                  Double latitud, Double longitud, Long idCliente) {
+        this(idEquipo, codigo, tipo, instalacion, direccion, latitud, longitud, idCliente, null, null);
+    }
 }
