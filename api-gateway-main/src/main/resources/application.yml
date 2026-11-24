@@ -26,6 +26,16 @@ spring:
               predicates:
                 - Path=/api/empresas,/api/empresas/**
 
+            - id: ruta-equipos
+              uri: lb://EQUIPOS
+              predicates:
+                - Path=/api/equipos,/api/equipos/**
+
+            - id: ruta-protocolos
+              uri: lb://PROTOCOLOS
+              predicates:
+                - Path=/api/protocolos,/api/protocolos/**
+
 eureka:
   client:
     register-with-eureka: true

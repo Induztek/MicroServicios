@@ -12,9 +12,11 @@ public class GatewayApplication {
         System.out.println(" API Gateway iniciado correctamente");
         System.out.println(" URL: http://localhost:8090");
         System.out.println("------------------------------------------------");
-        System.out.println(" /api/auth/**      -> AUTH");
-        System.out.println(" /api/usuarios/**  -> USUARIOS");
-        System.out.println(" /api/empresas/**  -> EMPRESAS");
+        System.out.println(" /api/auth/**        -> AUTH");
+        System.out.println(" /api/usuarios/**    -> USUARIOS");
+        System.out.println(" /api/empresas/**    -> EMPRESAS");
+        System.out.println(" /api/equipos/**     -> EQUIPOS");
+        System.out.println(" /api/protocolos/**  -> PROTOCOLOS");
         System.out.println("------------------------------------------------");
         System.out.println(" Eureka: http://localhost:8761");
         System.out.println("================================================");
