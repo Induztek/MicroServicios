@@ -23,6 +23,7 @@ public class UsuarioService {
     private static final Long ROL_TECNICO = 1L;
     private static final Long ROL_CLIENTE = 2L;
     private static final Long ROL_ADMINISTRADOR = 3L;
+    private static final Long ROL_SUPERVISOR = 4L;
 
     private final UsuarioRepository usuarioRepository;
     private final EmpresaClient empresaClient;
@@ -95,7 +96,8 @@ public class UsuarioService {
         if (vacio(nombre) || vacio(apellido) || vacio(rut) || vacio(telefono)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Nombre, apellido, RUT y teléfono son obligatorios");
         }
-        if (!ROL_TECNICO.equals(rolId) && !ROL_CLIENTE.equals(rolId) && !ROL_ADMINISTRADOR.equals(rolId)) {
+        if (!ROL_TECNICO.equals(rolId) && !ROL_CLIENTE.equals(rolId)
+                && !ROL_ADMINISTRADOR.equals(rolId) && !ROL_SUPERVISOR.equals(rolId)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El rol indicado no existe");
         }
     }
@@ -113,6 +115,7 @@ public class UsuarioService {
         if (ROL_TECNICO.equals(rolId)) return "Técnico";
         if (ROL_CLIENTE.equals(rolId)) return "Cliente";
         if (ROL_ADMINISTRADOR.equals(rolId)) return "Administrador";
+        if (ROL_SUPERVISOR.equals(rolId)) return "Supervisor";
         return "";
     }
 

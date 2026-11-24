@@ -21,7 +21,8 @@ public class DatosIniciales implements CommandLineRunner {
                     usuario("Matías", "Rojas", "16482913-8", "+56911112222", 1L, 1L),
                     usuario("Pedro", "Salas", "14756201-2", "+56933334444", 2L, 2L),
                     usuario("Daniela", "Vera", "17093845-3", "+56955556666", 3L, 2L),
-                    usuario("Admin", "Induztek", "13570246-3", "+56977778888", 1L, 3L)
+                    usuario("Admin", "Induztek", "13570246-3", "+56977778888", 1L, 3L),
+                    usuario("Carlos", "Mendoza", "15234890-1", "+56988889999", 1L, 4L)
             ));
         }
     }
